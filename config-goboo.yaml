@@ -1,0 +1,8 @@
+configuration:
+  service_name: svc-portofolio-golang
+  domains:
+  - portofolio
+  - auth
+  aggregate: []
+only_goboo_can_write:
+  service_name: svc-portofolio-golang
