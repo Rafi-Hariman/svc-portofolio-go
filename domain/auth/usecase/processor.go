@@ -79,7 +79,7 @@ func (auth authUsecase) ProcessDelete(payload valueobject.AuthPayloadDelete) (qu
 
 /// New processor
 
-func (auth authUsecase) ProcessStoreLogin(payload valueobject.AuthLoginPayloadInsert) (queryConfig []database.QueryConfig, err error) {
+func (auth authUsecase) ProcessStoreRegister(payload valueobject.AuthLoginPayloadInsert) (queryConfig []database.QueryConfig, err error) {
 	for _, x := range payload.Data {
 
 		data := []interface{}{
@@ -102,13 +102,32 @@ func (auth authUsecase) ProcessStoreLogin(payload valueobject.AuthLoginPayloadIn
 			"email",
 		}
 
-		queryInsert, err := auth.mysqlRepository.StoreLogin(column, data)
+		queryInsert, err := auth.mysqlRepository.StoreRegister(column, data)
 
 		if err != nil {
 			return queryConfig, err
 		}
 
 		queryConfig = append(queryConfig, queryInsert)
+	}
+	return
+}
+
+func (auth authUsecase) ProcessDeleteUserLogin(payload valueobject.AuthLoginPayloadDelete) (queryConfig []database.QueryConfig, err error) {
+	for _, x := range payload.Param {
+		var param = map[string]interface{}{
+			"AND": map[string]interface{}{
+				"uuid": x.UUID,
+			},
+		}
+
+		queryDelete, err := auth.mysqlRepository.DeleteUserLogin(param)
+
+		if err != nil {
+			return queryConfig, err
+		}
+
+		queryConfig = append(queryConfig, queryDelete)
 	}
 	return
 }

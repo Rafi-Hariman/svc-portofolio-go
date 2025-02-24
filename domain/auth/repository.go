@@ -19,10 +19,10 @@ type MysqlRepository interface {
 	Delete(param map[string]interface{}) (database.QueryConfig, error)
 
 	/// new repository for login
+	DeleteUserLogin(param map[string]interface{}) (database.QueryConfig, error)
 	GetOneUserLogin(param map[string]interface{}) (valueobject.AuthLogin, error)
-
 	GetAllUserLogin(param map[string]interface{}) ([]valueobject.AuthLogin, error)
-	StoreLogin(column []string, data []interface{}) (database.QueryConfig, error)
+	StoreRegister(column []string, data []interface{}) (database.QueryConfig, error)
 }
 
 type OracleRepository interface {

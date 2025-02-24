@@ -63,7 +63,7 @@ func (auth authUsecase) Delete(payload valueobject.AuthPayloadDelete) (err error
 
 /// new usecase for login
 
-func (auth authUsecase) StoreLogin(payload valueobject.AuthLoginPayloadInsert) (valueobject.AuthLoginPayloadInsert, error) {
+func (auth authUsecase) StoreRegister(payload valueobject.AuthLoginPayloadInsert) (valueobject.AuthLoginPayloadInsert, error) {
 
 	existingEmail, _ := auth.GetAllUserLogin(map[string]interface{}{
 		"AND": map[string]interface{}{
@@ -77,10 +77,12 @@ func (auth authUsecase) StoreLogin(payload valueobject.AuthLoginPayloadInsert) (
 		},
 	})
 
+	if len(existingName) > 0 {
+		return payload, fmt.Errorf("user with the name %s already exists", payload.Data[0].Name)
+	}
+
 	if len(existingEmail) > 0 {
 		return payload, fmt.Errorf("user with the email %s already exists", payload.Data[0].Email)
-	} else if len(existingName) > 0 {
-		return payload, fmt.Errorf("user with the name %s already exists", payload.Data[0].Name)
 	}
 
 	for i := range payload.Data {
@@ -98,7 +100,7 @@ func (auth authUsecase) StoreLogin(payload valueobject.AuthLoginPayloadInsert) (
 		payload.Data[i].Password = payload.Data[i].Password
 	}
 
-	queryConfig, err := auth.ProcessStoreLogin(payload)
+	queryConfig, err := auth.ProcessStoreRegister(payload)
 
 	if err != nil {
 		return payload, err
@@ -115,4 +117,14 @@ func (auth authUsecase) GetAllUserLogin(param map[string]interface{}) (response 
 func (auth authUsecase) GetOneUserLogin(param map[string]interface{}) (response valueobject.AuthLogin, err error) {
 	response, err = auth.mysqlRepository.GetOneUserLogin(param)
 	return
+}
+
+func (auth authUsecase) DeleteUserLogin(payload valueobject.AuthLoginPayloadDelete) (err error) {
+	queryConfig, err := auth.ProcessDeleteUserLogin(payload)
+
+	if err != nil {
+		return
+	}
+
+	return auth.mysqlRepository.Exec(queryConfig...)
 }

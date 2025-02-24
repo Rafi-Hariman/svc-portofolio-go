@@ -168,7 +168,7 @@ func (handler *HttpAuthHandler) Delete(ctx *gin.Context) {
 
 /// new core usecase for login
 
-func (handler *HttpAuthHandler) StoreLogin(ctx *gin.Context) {
+func (handler *HttpAuthHandler) StoreRegister(ctx *gin.Context) {
 	var payload valueobject.AuthLoginPayloadInsert
 
 	err := ctx.ShouldBindJSON(&payload)
@@ -180,7 +180,7 @@ func (handler *HttpAuthHandler) StoreLogin(ctx *gin.Context) {
 
 	payload.User = ctx.Request.Header.Get("X-Member")
 
-	feedback, err := handler.authUsecase.StoreLogin(payload)
+	feedback, err := handler.authUsecase.StoreRegister(payload)
 
 	if err != nil {
 		message.ReturnInternalServerError(ctx, err.Error())
@@ -194,8 +194,9 @@ func (handler *HttpAuthHandler) StoreLogin(ctx *gin.Context) {
 func (handler *HttpAuthHandler) GetAllUserLogin(ctx *gin.Context) {
 	var param = map[string]interface{}{
 		"AND": map[string]interface{}{
-			"name":  ctx.Query("name"),
-			"email": ctx.Query("email"),
+			"name":     ctx.Query("name"),
+			"email":    ctx.Query("email"),
+			"password": ctx.Query("password"),
 		},
 	}
 
@@ -242,4 +243,25 @@ func (handler *HttpAuthHandler) GetOneUserLogin(ctx *gin.Context) {
 	}
 
 	message.ReturnOk(ctx, &response, param)
+}
+
+func (handler *HttpAuthHandler) DeleteUserLogin(ctx *gin.Context) {
+	var payload valueobject.AuthLoginPayloadDelete
+
+	err := ctx.ShouldBindJSON(&payload)
+
+	if err != nil {
+		message.ReturnBadRequest(ctx, err.Error(), config.ERROR_BIND_JSON)
+		return
+	}
+
+	err = handler.authUsecase.DeleteUserLogin(payload)
+
+	if err != nil {
+		message.ReturnInternalServerError(ctx, err.Error())
+		log.Println(err.Error())
+		return
+	}
+
+	message.ReturnSuccessDelete(ctx)
 }

@@ -131,7 +131,7 @@ func (db *mysqlAuthRepository) Delete(param map[string]interface{}) (builder dat
 
 /// NewAuthRepository ...
 
-func (db *mysqlAuthRepository) StoreLogin(column []string, data []interface{}) (builder database.QueryConfig, err error) {
+func (db *mysqlAuthRepository) StoreRegister(column []string, data []interface{}) (builder database.QueryConfig, err error) {
 	builder = database.New(MYSQL, MYSQL_LOGIN_TABLE, INSERT)
 
 	builder.OnInsert = database.OnInsert{
@@ -222,5 +222,16 @@ func (db *mysqlAuthRepository) GetOneUserLogin(param map[string]interface{}) (re
 		&response.Password,
 	)
 
+	return
+}
+
+func (db *mysqlAuthRepository) DeleteUserLogin(param map[string]interface{}) (builder database.QueryConfig, err error) {
+	builder = database.New(MYSQL, MYSQL_LOGIN_TABLE, DELETE)
+
+	builder.OnDelete = database.OnDelete{
+		Where: param,
+	}
+
+	err = builder.QueryBuilder()
 	return
 }

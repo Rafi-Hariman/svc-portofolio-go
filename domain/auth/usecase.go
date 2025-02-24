@@ -27,9 +27,10 @@ type Usecase interface {
 
 	/// new usecase for login
 
+	DeleteUserLogin(payload valueobject.AuthLoginPayloadDelete) error
 	GetOneUserLogin(param map[string]interface{}) (valueobject.AuthLogin, error)
 	GetAllUserLogin(param map[string]interface{}) ([]valueobject.AuthLogin, error)
-	StoreLogin(payload valueobject.AuthLoginPayloadInsert) (valueobject.AuthLoginPayloadInsert, error)
+	StoreRegister(payload valueobject.AuthLoginPayloadInsert) (valueobject.AuthLoginPayloadInsert, error)
 
-	ProcessStoreLogin(payload valueobject.AuthLoginPayloadInsert) ([]database.QueryConfig, error)
+	ProcessStoreRegister(payload valueobject.AuthLoginPayloadInsert) ([]database.QueryConfig, error)
 }

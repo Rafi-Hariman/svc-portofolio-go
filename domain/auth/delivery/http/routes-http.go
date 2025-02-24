@@ -26,8 +26,11 @@ func NewAuthHttpHandler(auth auth.Usecase, httpRouter *gin.Engine) {
 
 	// new route
 
-	public.GET("/auth/login-detail/:uuid", handler.GetOneUserLogin)
-	public.POST("/auth/login", handler.StoreLogin)
+	public.DELETE("/auth/login/delete-user", handler.DeleteUserLogin)
+
+	public.GET("/auth/login/detail-user/:uuid", handler.GetOneUserLogin)
+	public.POST("/auth/register", handler.StoreRegister)
+
 	public.GET("/auth/login/list", handler.GetAllUserLogin)
 
 	// new route
