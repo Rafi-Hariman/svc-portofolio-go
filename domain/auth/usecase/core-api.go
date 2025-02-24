@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"fmt"
+	"regexp"
 	"svc-portofolio-golang/valueobject"
 )
 
@@ -57,4 +59,60 @@ func (auth authUsecase) Delete(payload valueobject.AuthPayloadDelete) (err error
 	}
 
 	return auth.mysqlRepository.Exec(queryConfig...)
+}
+
+/// new usecase for login
+
+func (auth authUsecase) StoreLogin(payload valueobject.AuthLoginPayloadInsert) (valueobject.AuthLoginPayloadInsert, error) {
+
+	existingEmail, _ := auth.GetAllUserLogin(map[string]interface{}{
+		"AND": map[string]interface{}{
+			"email": payload.Data[0].Email,
+		},
+	})
+
+	existingName, _ := auth.GetAllUserLogin(map[string]interface{}{
+		"AND": map[string]interface{}{
+			"name": payload.Data[0].Name,
+		},
+	})
+
+	if len(existingEmail) > 0 {
+		return payload, fmt.Errorf("user with the email %s already exists", payload.Data[0].Email)
+	} else if len(existingName) > 0 {
+		return payload, fmt.Errorf("user with the name %s already exists", payload.Data[0].Name)
+	}
+
+	for i := range payload.Data {
+		isValidName := regexp.MustCompile(`^[a-zA-Z]+$`).MatchString(payload.Data[i].Name)
+		if !isValidName {
+			return payload, fmt.Errorf("name %s contains invalid characters, only letters are allowed", payload.Data[i].Name)
+		}
+
+		payload.Data[i].ID, _ = auth.mysqlRepository.GenerateID()
+		payload.Data[i].UUID, _ = auth.mysqlRepository.GenerateUUID()
+		payload.Data[i].UserInput = payload.User
+
+		payload.Data[i].Name = payload.Data[i].Name
+		payload.Data[i].Email = payload.Data[i].Email
+		payload.Data[i].Password = payload.Data[i].Password
+	}
+
+	queryConfig, err := auth.ProcessStoreLogin(payload)
+
+	if err != nil {
+		return payload, err
+	}
+
+	return payload, auth.mysqlRepository.Exec(queryConfig...)
+}
+
+func (auth authUsecase) GetAllUserLogin(param map[string]interface{}) (response []valueobject.AuthLogin, err error) {
+	response, err = auth.mysqlRepository.GetAllUserLogin(param)
+	return
+}
+
+func (auth authUsecase) GetOneUserLogin(param map[string]interface{}) (response valueobject.AuthLogin, err error) {
+	response, err = auth.mysqlRepository.GetOneUserLogin(param)
+	return
 }

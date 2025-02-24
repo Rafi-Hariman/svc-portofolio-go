@@ -24,4 +24,12 @@ type Usecase interface {
 	ProcessStore(payload valueobject.AuthPayloadInsert) ([]database.QueryConfig, error)
 	ProcessUpdate(payload valueobject.AuthPayloadUpdate) ([]database.QueryConfig, error)
 	ProcessDelete(payload valueobject.AuthPayloadDelete) ([]database.QueryConfig, error)
+
+	/// new usecase for login
+
+	GetOneUserLogin(param map[string]interface{}) (valueobject.AuthLogin, error)
+	GetAllUserLogin(param map[string]interface{}) ([]valueobject.AuthLogin, error)
+	StoreLogin(payload valueobject.AuthLoginPayloadInsert) (valueobject.AuthLoginPayloadInsert, error)
+
+	ProcessStoreLogin(payload valueobject.AuthLoginPayloadInsert) ([]database.QueryConfig, error)
 }

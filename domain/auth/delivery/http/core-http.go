@@ -165,3 +165,81 @@ func (handler *HttpAuthHandler) Delete(ctx *gin.Context) {
 
 	message.ReturnSuccessDelete(ctx)
 }
+
+/// new core usecase for login
+
+func (handler *HttpAuthHandler) StoreLogin(ctx *gin.Context) {
+	var payload valueobject.AuthLoginPayloadInsert
+
+	err := ctx.ShouldBindJSON(&payload)
+
+	if err != nil {
+		message.ReturnBadRequest(ctx, err.Error(), config.ERROR_BIND_JSON)
+		return
+	}
+
+	payload.User = ctx.Request.Header.Get("X-Member")
+
+	feedback, err := handler.authUsecase.StoreLogin(payload)
+
+	if err != nil {
+		message.ReturnInternalServerError(ctx, err.Error())
+		log.Println(err.Error())
+		return
+	}
+
+	message.ReturnSuccessInsert(ctx, feedback.Data)
+}
+
+func (handler *HttpAuthHandler) GetAllUserLogin(ctx *gin.Context) {
+	var param = map[string]interface{}{
+		"AND": map[string]interface{}{
+			"name":  ctx.Query("name"),
+			"email": ctx.Query("email"),
+		},
+	}
+
+	response, err := handler.authUsecase.GetAllUserLogin(param)
+
+	if err != nil {
+		if err.Error() == config.SQL_NOT_FOUND {
+			message.ReturnOk(ctx, make(map[string]interface{}), param)
+			return
+		}
+		message.ReturnInternalServerError(ctx, err.Error())
+		log.Println(err.Error())
+		return
+	}
+
+	// count, err := handler.authUsecase.Count(param)
+
+	/* if err != nil {
+		message.ReturnInternalServerError(ctx, err.Error())
+		log.Println(err.Error())
+		return
+	} */
+
+	message.ReturnOk(ctx, &response, param)
+}
+
+func (handler *HttpAuthHandler) GetOneUserLogin(ctx *gin.Context) {
+	var param = map[string]interface{}{
+		"AND": map[string]interface{}{
+			"uuid": ctx.Param("uuid"),
+		},
+	}
+
+	response, err := handler.authUsecase.GetOneUserLogin(param)
+
+	if err != nil {
+		if err.Error() == config.SQL_NOT_FOUND {
+			message.ReturnOk(ctx, make(map[string]interface{}), param)
+			return
+		}
+		message.ReturnInternalServerError(ctx, err.Error())
+		log.Println(err.Error())
+		return
+	}
+
+	message.ReturnOk(ctx, &response, param)
+}

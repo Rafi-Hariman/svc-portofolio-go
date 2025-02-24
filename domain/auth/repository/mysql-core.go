@@ -128,3 +128,99 @@ func (db *mysqlAuthRepository) Delete(param map[string]interface{}) (builder dat
 	err = builder.QueryBuilder()
 	return
 }
+
+/// NewAuthRepository ...
+
+func (db *mysqlAuthRepository) StoreLogin(column []string, data []interface{}) (builder database.QueryConfig, err error) {
+	builder = database.New(MYSQL, MYSQL_LOGIN_TABLE, INSERT)
+
+	builder.OnInsert = database.OnInsert{
+		Column: column,
+		Data:   data,
+	}
+
+	err = builder.QueryBuilder()
+	return
+}
+
+func (db *mysqlAuthRepository) GetAllUserLogin(param map[string]interface{}) (response []valueobject.AuthLogin, err error) {
+	var result valueobject.AuthLogin
+
+	builder := database.New(MYSQL, MYSQL_LOGIN_TABLE, SELECT)
+
+	builder.OnSelect = database.OnSelect{
+		Column: []string{
+			"id",
+			"uuid",
+			"name",
+			"email",
+			"password",
+		},
+		Where: param,
+	}
+
+	err = builder.QueryBuilder()
+
+	if err != nil {
+		return
+	}
+
+	query, err := db.sqlDB.Query(builder.Result.Query, builder.Result.Value...)
+
+	if err != nil {
+		return
+	}
+
+	defer query.Close()
+
+	for query.Next() {
+		err = query.Scan(
+			&result.ID,
+			&result.UUID,
+			&result.Name,
+			&result.Email,
+			&result.Password,
+		)
+
+		if err != nil {
+			return
+		}
+
+		response = append(response, result)
+	}
+
+	return
+}
+
+func (db *mysqlAuthRepository) GetOneUserLogin(param map[string]interface{}) (response valueobject.AuthLogin, err error) {
+	builder := database.New(MYSQL, MYSQL_LOGIN_TABLE, SELECT)
+
+	builder.OnSelect = database.OnSelect{
+		Column: []string{
+			"id",
+			"uuid",
+			"name",
+			"email",
+			"password",
+		},
+		Where: param,
+	}
+
+	err = builder.QueryBuilder()
+
+	if err != nil {
+		return
+	}
+
+	query := db.sqlDB.QueryRow(builder.Result.Query, builder.Result.Value...)
+
+	err = query.Scan(
+		&response.ID,
+		&response.UUID,
+		&response.Name,
+		&response.Email,
+		&response.Password,
+	)
+
+	return
+}

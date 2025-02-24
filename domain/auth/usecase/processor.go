@@ -76,3 +76,39 @@ func (auth authUsecase) ProcessDelete(payload valueobject.AuthPayloadDelete) (qu
 	}
 	return
 }
+
+/// New processor
+
+func (auth authUsecase) ProcessStoreLogin(payload valueobject.AuthLoginPayloadInsert) (queryConfig []database.QueryConfig, err error) {
+	for _, x := range payload.Data {
+
+		data := []interface{}{
+			[]interface{}{
+				x.ID,
+				x.UUID,
+				x.UserInput,
+				x.Name,
+				x.Password,
+				x.Email,
+			},
+		}
+
+		column := []string{
+			"id",
+			"uuid",
+			"user_input",
+			"name",
+			"password",
+			"email",
+		}
+
+		queryInsert, err := auth.mysqlRepository.StoreLogin(column, data)
+
+		if err != nil {
+			return queryConfig, err
+		}
+
+		queryConfig = append(queryConfig, queryInsert)
+	}
+	return
+}

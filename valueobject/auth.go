@@ -27,3 +27,31 @@ type AuthDataUpdate struct {
 type AuthPayloadDelete struct {
 	Param []Auth `json:"param" binding:"required"`
 }
+
+/// new auth struct for login
+
+type AuthLogin struct {
+	entity.AuthLogin
+	entity.StandardKey
+	entity.Pagination
+	entity.Time
+}
+
+type AuthLoginPayloadInsert struct {
+	Data []AuthLogin `json:"data" binding:"required"`
+	User string
+}
+
+type AuthLoginPayloadUpdate struct {
+	Data []AuthLoginDataUpdate `json:"data" binding:"required"`
+	User string
+}
+
+type AuthLoginDataUpdate struct {
+	Param AuthLogin `json:"param" binding:"required"`
+	Body  AuthLogin `json:"body" binding:"required"`
+}
+
+type AuthLoginPayloadDelete struct {
+	Param []AuthLogin `json:"param" binding:"required"`
+}

@@ -28,6 +28,7 @@ const DELETE = "delete"
 two lines below is the const of table name, please change the value of this const
 */
 const MYSQL_TABLE = "auth"
+const MYSQL_LOGIN_TABLE = "user_admin"
 const ORACLE_TABLE = "auth"
 
 /*
